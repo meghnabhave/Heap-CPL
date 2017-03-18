@@ -41,6 +41,7 @@ List* makeFreeList(){
 AList* makeAllocatedList(){
 	AList *allocatedList;
 	allocatedList = NULL;
+	return allocatedList;
 }
 
 List* insertF(List *lptr, List *nptr){
@@ -101,12 +102,12 @@ List* deleteF(List *freeList,List *ptr){
 		}
 		if(cur==ptr){
 			if(cur != freeList){
-				prev = cur->next;
+				prev->next = cur->next;
 			}
 			else{
 				freeList = cur->next;
 			}
-			free(ptr);
+			free(cur);
 		}
 	}
 	return freeList;
@@ -122,12 +123,12 @@ AList* deleteA(AList *list,AList *ptr){
 		}
 		if(cur==ptr){
 			if(cur != list){
-				prev = cur->next;
+				prev->next = cur->next;
 			}
 			else{
 				list = cur->next;
 			}
-			free(ptr);
+			free(cur);
 		}
 	}
 	return list;
@@ -136,7 +137,7 @@ AList* deleteA(AList *list,AList *ptr){
 void freeListCompact(List **freeList){
 	List *nptr = *freeList;
 	while(nptr!=NULL && nptr->next != NULL){
-		if(nptr->start + nptr->size +1 == (nptr->next)->start){
+		if(nptr->start + nptr->size == (nptr->next)->start){
 			nptr->size = nptr->size + (nptr->next)->size;
 			*freeList = deleteF(*freeList,nptr->next);
 		}
@@ -168,7 +169,7 @@ void heap_malloc(char name,char d[],char heap[],List **freeList, AList **allocat
 	else{
 		printf("\nNo space in heap.");
 	}
-	//freeListCompact(freeList);
+	freeListCompact(freeList);
 }
 
 void heap_free(char name,char heap[],List **freeList, AList **allocatedList){
@@ -185,7 +186,7 @@ void heap_free(char name,char heap[],List **freeList, AList **allocatedList){
 		*freeList = insertF(*freeList,ptr);
 		*allocatedList = deleteA(*allocatedList,nptr);
 	}
-	//freeListCompact(freeList);
+	freeListCompact(freeList);
 }
 
 void printA(AList *lptr){
